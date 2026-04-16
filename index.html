@@ -415,12 +415,16 @@ const ALL_DOCS = [
   { name: 'AI-PM-PRD (1).pdf', domain: 'pm-pc', type: 'PDF', size: '66 KB', status: 'Available' },
   { name: 'AI-PM-product-functional (1).pdf', domain: 'pm-pc', type: 'PDF', size: '1.2 MB', status: 'Available' },
   { name: 'NexT-Integration-PM-PC (1).pdf', domain: 'pm-pc', type: 'PDF', size: '118 KB', status: 'Available' },
-  { name: 'ENS_IP_Deployment_Work_Hours.txt', domain: 'deployment', type: 'Excel', size: '56 KB', status: 'Available' },
-  { name: 'Network Operations - Meta.txt', domain: 'network-ops', type: 'PPTX', size: '10 MB', status: 'Available' },
-  { name: 'Infra-categories (1).txt', domain: 'network-ops', type: 'Excel', size: '26 KB', status: 'Available' },
-  { name: 'Meta-MSFT-Common-Activity-Mapping (1).txt', domain: 'network-ops', type: 'Excel', size: '18 KB', status: 'Available' },
-  { name: 'msft-infra-categories 1 (1).txt', domain: 'network-ops', type: 'Excel', size: '14 KB', status: 'Available' },
+  { name: 'ENS_IP_Deployment_Work_Hours.xlsx', domain: 'deployment', type: 'XLSX', size: '56 KB', status: 'Available' },
+  { name: 'IG_ENS_improvements.pptx', domain: 'deployment', type: 'PPTX', size: '5.8 MB', status: 'Limited (image-heavy)' },
+  { name: 'Network Operations - Meta.pptx', domain: 'network-ops', type: 'PPTX', size: '10 MB', status: 'Available' },
+  { name: 'Infra-categories (1).xlsx', domain: 'network-ops', type: 'XLSX', size: '26 KB', status: 'Available' },
+  { name: 'Meta-MSFT-Common-Activity-Mapping (1).xlsx', domain: 'network-ops', type: 'XLSX', size: '18 KB', status: 'Available' },
+  { name: 'Network-Operations-Categroy.xlsx', domain: 'network-ops', type: 'XLSX', size: '16 KB', status: 'Empty' },
+  { name: 'msft-infra-categories 1 (1).xlsx', domain: 'network-ops', type: 'XLSX', size: '14 KB', status: 'Available' },
+  { name: 'Supply_chain_traceability_gap_analysis.pptx', domain: 'supply-chain', type: 'PPTX', size: '67 MB', status: 'Limited (image-heavy)' },
   { name: 'ENS-Lab-Support-Overview.pdf', domain: 'lab-support', type: 'PDF', size: '100 KB', status: 'Available' },
+  { name: 'netcastle-lab-as-service.pdf', domain: 'lab-support', type: 'PDF', size: '2.1 MB', status: 'Failed (scanned)' },
 ];
 
 const DOMAIN_COLORS = {
@@ -431,7 +435,14 @@ const DOMAIN_COLORS = {
   'lab-support': { bg: 'var(--teal-dim)', color: 'var(--teal)' },
 };
 
-const TYPE_ICONS = { 'PDF': '&#128196;', 'Excel': '&#128202;', 'PPTX': '&#128218;' };
+const TYPE_ICONS = { 'PDF': '&#128196;', 'XLSX': '&#128202;', 'PPTX': '&#128218;', 'TXT': '&#128196;', 'JSON': '&#128196;' };
+const STATUS_STYLES = {
+  'Available': 'background:var(--green-dim);color:var(--green);',
+  'Limited (image-heavy)': 'background:var(--orange-dim);color:var(--orange);',
+  'Empty': 'background:var(--orange-dim);color:var(--orange);',
+  'Failed (scanned)': 'background:var(--red-dim);color:var(--red);',
+  'Processing': 'background:var(--blue-dim);color:var(--blue);',
+};
 
 function renderRightPanel(domainId) {
   const panel = document.getElementById('rightPanel');
@@ -441,6 +452,8 @@ function renderRightPanel(domainId) {
   panel.innerHTML = `<div class="right-label">${domainLabel} (${docs.length})</div>` +
     docs.map(d => {
       const dc = DOMAIN_COLORS[d.domain] || { bg: 'var(--blue-dim)', color: 'var(--blue)' };
+      const ss = STATUS_STYLES[d.status] || 'background:var(--blue-dim);color:var(--blue);';
+      const needsConvert = ['PPTX', 'XLSX'].includes(d.type);
       return `<div class="doc-card">
         <div class="doc-name">${TYPE_ICONS[d.type] || '&#128196;'} ${d.name}</div>
         <div class="doc-meta">
@@ -448,9 +461,13 @@ function renderRightPanel(domainId) {
           <span>${d.type}</span>
           <span>${d.size}</span>
         </div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
+          <span style="padding:2px 7px;border-radius:8px;font-size:9px;font-weight:600;${ss}">${d.status}</span>
+          ${needsConvert && d.status === 'Available' ? '<span style="font-size:9px;color:var(--text-3);">Stored as TXT in Pinecone</span>' : ''}
+        </div>
       </div>`;
     }).join('') +
-    (docs.length === 0 ? '<div style="font-size:12px;color:var(--text-3);padding:8px;">No documents in this domain. Content was image-based and could not be extracted.</div>' : '');
+    (docs.length === 0 ? '<div style="font-size:12px;color:var(--text-3);padding:8px;">No documents in this domain.</div>' : '');
 }
 
 // ── RENDER SIDEBAR ──
